@@ -1,0 +1,50 @@
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+html {
+  scroll-behavior: smooth;
+}
+
+@theme {
+  --color-primary: #22d3ee; /* cyan-400 */
+  --color-accent: #6366f1; /* indigo-500 */
+  --color-dark: #020617; /* slate-950 */
+  --color-glass: rgba(255, 255, 255, 0.05);
+  --color-glass-border: rgba(255, 255, 255, 0.05);
+  
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Anton", sans-serif;
+}
+
+@layer base {
+  body {
+    @apply bg-dark text-white font-sans antialiased selection:bg-primary selection:text-dark;
+  }
+}
+
+@layer components {
+  .glass {
+    @apply bg-white/5 backdrop-blur-xl border border-white/5;
+  }
+  
+  .btn-primary {
+    @apply bg-white text-dark hover:bg-primary transition-all duration-300 px-6 py-3 rounded-xl font-bold uppercase text-xs tracking-widest flex items-center justify-center gap-2;
+  }
+
+  .btn-outline {
+    @apply bg-white/5 border border-white/10 hover:bg-white/10 text-white transition-all duration-300 px-6 py-3 rounded-xl font-bold uppercase text-xs tracking-widest flex items-center justify-center gap-2;
+  }
+
+  .text-gradient {
+    @apply text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent;
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.animate-float {
+  animation: float 5s ease-in-out infinite;
+}

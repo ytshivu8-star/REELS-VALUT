@@ -1,0 +1,59 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "Stores user account information and purchase history",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Auth UID" },
+        "email": { "type": "string", "description": "User email address" },
+        "isAdmin": { "type": "boolean", "description": "Whether the user has admin privileges" },
+        "purchasedProductIds": { 
+          "type": "array", 
+          "description": "List of IDs for products the user has successfully purchased"
+        }
+      },
+      "required": ["uid", "email", "isAdmin", "purchasedProductIds"]
+    },
+    "PricingOverride": {
+      "title": "Pricing Override",
+      "description": "Custom prices set by admin for products",
+      "type": "object",
+      "properties": {
+        "price": { "type": "number" },
+        "originalPrice": { "type": "number" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["price", "originalPrice", "updatedAt"]
+    },
+    "Order": {
+      "title": "Order",
+      "description": "Details of a purchase transaction",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "userEmail": { "type": "string" },
+        "productId": { "type": "string" },
+        "amount": { "type": "number" },
+        "status": { "type": "string", "enum": ["SUCCESS", "FAILED"] },
+        "cfOrderId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "userEmail", "productId", "amount", "status", "cfOrderId", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "User profile documents"
+    },
+    "/pricing_overrides/{productId}": {
+      "schema": "PricingOverride",
+      "description": "Global pricing overrides"
+    },
+    "/orders/{orderId}": {
+      "schema": "Order",
+      "description": "Transaction records"
+    }
+  }
+}
