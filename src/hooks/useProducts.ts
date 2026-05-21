@@ -22,6 +22,8 @@ export function useProducts() {
             name: typeof override.name === 'string' && override.name.trim() ? override.name : product.name,
             price: typeof override.price === 'number' ? override.price : product.price,
             originalPrice: typeof override.originalPrice === 'number' ? override.originalPrice : product.originalPrice,
+            deliveryLink: typeof override.deliveryLink === 'string' && override.deliveryLink.trim() ? override.deliveryLink : product.deliveryLink,
+            thumbnail: typeof override.thumbnail === 'string' && override.thumbnail.trim() ? override.thumbnail : product.thumbnail,
           };
         }
         return product;

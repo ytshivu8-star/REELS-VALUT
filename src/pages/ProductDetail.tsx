@@ -8,6 +8,7 @@ import toast from "react-hot-toast";
 import { useState, useEffect } from "react";
 import { db } from "../lib/firebase";
 import { doc, onSnapshot, addDoc, collection, query, where, orderBy } from "firebase/firestore";
+import { useProducts } from "../hooks/useProducts";
 
 interface Review {
   id?: string;
@@ -93,7 +94,8 @@ export default function ProductDetail() {
   const { user, profile, setIsAuthModalOpen, manualLogin } = useAuth();
   const [isProcessing, setIsProcessing] = useState(false);
   const [hasPurchased, setHasPurchased] = useState(false);
-  const [product, setProduct] = useState(PRODUCTS.find(p => p.id === id));
+  const { products, loading: productsLoading } = useProducts();
+  const product = products.find(p => p.id === id);
 
   // Direct checkout collection states
   const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false);
@@ -185,32 +187,32 @@ export default function ProductDetail() {
     : "4.8";
 
   useEffect(() => {
-    if (!id) return;
-    
-    // Subscribe to real-time pricing changes for this product
-    const unsubscribe = onSnapshot(doc(db, 'pricing_overrides', id), (snapshot) => {
-      if (snapshot.exists()) {
-        const data = snapshot.data();
-        setProduct(prev => prev ? {
-          ...prev,
-          price: typeof data.price === 'number' ? data.price : prev.price,
-          originalPrice: typeof data.originalPrice === 'number' ? data.originalPrice : prev.originalPrice
-        } : prev);
-      }
-    }, (error) => {
-      console.error("Error fetching Firestore pricing:", error);
-    });
-
-    return () => unsubscribe();
-  }, [id]);
-
-  useEffect(() => {
     if (profile && product) {
       setHasPurchased(profile.purchasedProductIds?.includes(product.id) || false);
     }
   }, [profile, product]);
 
-  if (!product) return <div>Product Not Found</div>;
+  if (!product) {
+    if (productsLoading) {
+      return (
+        <div className="flex flex-col items-center justify-center min-h-screen text-slate-400">
+          <div className="animate-spin rounded-full h-10 w-10 border-4 border-primary border-t-transparent mb-4" />
+          <p className="text-[10px] uppercase font-black tracking-widest">Verifying Bundle Details...</p>
+        </div>
+      );
+    }
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen text-slate-400">
+        <p className="text-xs uppercase font-black tracking-widest mb-4">Product Not Found</p>
+        <button 
+          onClick={() => navigate('/')} 
+          className="px-5 py-2.5 bg-white/10 hover:bg-white/20 text-white font-black uppercase text-[10px] tracking-widest rounded-xl transition-all"
+        >
+          Back to Home
+        </button>
+      </div>
+    );
+  }
 
   const handlePurchase = async (activeUser = user) => {
     if (!activeUser) {
