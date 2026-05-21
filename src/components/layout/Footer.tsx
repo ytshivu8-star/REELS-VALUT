@@ -10,7 +10,7 @@ export default function Footer() {
             <div className="w-8 h-8 bg-gradient-to-tr from-primary to-accent rounded-lg flex items-center justify-center">
               <div className="w-4 h-4 bg-white rounded-sm rotate-45"></div>
             </div>
-            <span className="text-xl font-bold tracking-tight uppercase">Webnixo <span className="text-primary font-black">Reels</span></span>
+            <span className="text-xl font-bold tracking-tight uppercase">Webnixo Reel <span className="text-primary font-black">Bundles</span></span>
           </Link>
           <p className="text-slate-500 max-w-sm mb-8 leading-relaxed text-sm font-medium">
             Dominate social media with ultra-high quality content bundles. 
@@ -49,7 +49,7 @@ export default function Footer() {
       </div>
 
       <div className="max-w-7xl mx-auto border-t border-white/5 pt-10 flex flex-col md:flex-row items-center justify-between gap-6 text-slate-600 font-bold uppercase text-[10px] tracking-widest">
-        <p>© 2024 Webnixo Reels. Built for Scale.</p>
+        <p>© 2026 Webnixo Reel Bundles. All Rights Reserved.</p>
         <div className="flex gap-8">
            <span className="flex items-center gap-2"><div className="w-1 h-1 bg-green-500 rounded-full" /> Server Online</span>
            <span className="flex items-center gap-2"><div className="w-1 h-1 bg-primary rounded-full" /> 256-Bit Encrypted</span>

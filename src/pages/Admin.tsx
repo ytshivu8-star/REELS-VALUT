@@ -600,7 +600,7 @@ export default function Admin() {
               <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-4">
                 <div>
                   <h2 className="text-2xl font-black uppercase tracking-tighter">Manage Bundles & Pricing</h2>
-                  <p className="text-slate-500 text-xs font-bold uppercase tracking-widest mt-1">Configure and add custom webnixo reel packs</p>
+                  <p className="text-slate-500 text-xs font-bold uppercase tracking-widest mt-1">Configure and add custom Webnixo Reel Bundles</p>
                 </div>
                 <button 
                   onClick={() => setIsAddModalOpen(true)}

@@ -29,7 +29,7 @@ export default function Navbar() {
           <div className="w-8 h-8 bg-gradient-to-tr from-primary to-accent rounded-lg flex items-center justify-center">
             <div className="w-4 h-4 bg-white rounded-sm rotate-45"></div>
           </div>
-          <span className="text-xl font-bold tracking-tight uppercase">REEL <span className="text-primary font-black">BUNDLES</span></span>
+          <span className="text-xl font-bold tracking-tight uppercase">WEBNIXO REEL <span className="text-primary font-black">BUNDLES</span></span>
         </Link>
 
         {/* Desktop Menu */}

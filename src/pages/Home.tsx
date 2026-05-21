@@ -86,23 +86,49 @@ export default function Home() {
           </h2>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="glass p-5 md:p-10 rounded-2xl md:rounded-[2.5rem] relative">
-                <div className="text-primary flex gap-1 mb-4 md:mb-6">
-                  <Star size={16} className="fill-current md:w-5 md:h-5" />
-                  <Star size={16} className="fill-current md:w-5 md:h-5" />
-                  <Star size={16} className="fill-current md:w-5 md:h-5" />
-                  <Star size={16} className="fill-current md:w-5 md:h-5" />
-                  <Star size={16} className="fill-current md:w-5 md:h-5" />
+            {[
+              {
+                name: "Aman Sharma",
+                role: "Self-Improvement Creator",
+                handle: "@alphamental.in",
+                text: "The Andrew Tate and alpha mindset reels are styled perfectly. Grew my self-improvement page from scratch to 45k followers in less than 30 days! Webnixo is an outstanding investment.",
+                initial: "A"
+              },
+              {
+                name: "Priya Patel",
+                role: "Social Media Agency CEO",
+                handle: "CreativeShift Agency",
+                text: "Best quality content bundles on the internet! Our clients' average reach increased by 310% in the first week. The edits are premium, high-res (HD/4K), and completely watermark-free.",
+                initial: "P"
+              },
+              {
+                name: "Rohan Malhotra",
+                role: "Full-time Creator",
+                text: "No more editing for 6 hours a day! I just download a reel from the Webnixo Google Drive, insert my caption hooks, and schedule. It saved me huge time and got me 1.2M impressions!",
+                handle: "@rohanmotivation",
+                initial: "R"
+              }
+            ].map((testimonial, idx) => (
+              <div key={idx} className="glass p-5 md:p-10 rounded-2xl md:rounded-[2.5rem] relative flex flex-col justify-between">
+                <div>
+                  <div className="text-primary flex gap-1 mb-4 md:mb-6">
+                    <Star size={16} className="fill-current md:w-5 md:h-5" />
+                    <Star size={16} className="fill-current md:w-5 md:h-5" />
+                    <Star size={16} className="fill-current md:w-5 md:h-5" />
+                    <Star size={16} className="fill-current md:w-5 md:h-5" />
+                    <Star size={16} className="fill-current md:w-5 md:h-5" />
+                  </div>
+                  <p className="text-sm md:text-base italic text-white/80 mb-6 md:mb-8 leading-relaxed">
+                    "{testimonial.text}"
+                  </p>
                 </div>
-                <p className="text-sm md:text-lg italic text-white/80 mb-6 md:mb-8 leading-relaxed">
-                  "Webnixo bundles literally saved my page. I went from 200 views to 50k+ on my first upload from the mega pack. The quality is unmatched!"
-                </p>
                 <div className="flex items-center gap-3 md:gap-4">
-                  <div className="w-8 h-8 md:w-12 md:h-12 rounded-full bg-white/10 shrink-0" />
+                  <div className="w-8 h-8 md:w-12 md:h-12 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-black uppercase text-xs">
+                    {testimonial.initial}
+                  </div>
                   <div>
-                    <div className="font-bold text-white uppercase tracking-wider text-[10px] md:text-sm">Aman S.</div>
-                    <div className="text-white/40 text-[9px] md:text-xs uppercase tracking-widest">Growth Specialist</div>
+                    <div className="font-bold text-white uppercase tracking-wider text-[10px] md:text-sm">{testimonial.name}</div>
+                    <div className="text-white/40 text-[9px] md:text-xs uppercase tracking-widest">{testimonial.role} • {testimonial.handle}</div>
                   </div>
                 </div>
               </div>
