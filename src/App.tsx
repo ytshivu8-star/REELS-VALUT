@@ -14,6 +14,9 @@ import ProductDetail from "./pages/ProductDetail";
 import Dashboard from "./pages/Dashboard";
 import Admin from "./pages/Admin";
 import PaymentStatus from "./pages/PaymentStatus";
+import ContactUs from "./pages/ContactUs";
+import TermsConditions from "./pages/TermsConditions";
+import RefundsCancellations from "./pages/RefundsCancellations";
 import { motion, AnimatePresence } from "motion/react";
 import { MessageCircle } from "lucide-react";
 
@@ -45,6 +48,9 @@ export default function App() {
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/admin" element={<Admin />} />
                 <Route path="/payment-status" element={<PaymentStatus />} />
+                <Route path="/contact-us" element={<ContactUs />} />
+                <Route path="/terms-conditions" element={<TermsConditions />} />
+                <Route path="/refunds-cancellations" element={<RefundsCancellations />} />
               </Routes>
             </AnimatePresence>
           </main>

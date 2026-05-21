@@ -17,7 +17,7 @@ export default function Footer() {
             Designed for growth, scaled for results.
           </p>
           <div className="flex gap-4">
-             <a href="#" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-primary hover:text-black transition-all">
+             <a href="https://www.instagram.com/webnixo.in" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-primary hover:text-black transition-all">
                <Instagram size={20} />
              </a>
              <a href="https://wa.me/917676394923?text=Hi%20I%20want%20to%20buy%20the%20reel%20bundle" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-primary hover:text-black transition-all">
@@ -40,10 +40,10 @@ export default function Footer() {
         <div>
            <h4 className="text-xs font-black uppercase tracking-widest mb-6 text-white">Support</h4>
            <ul className="space-y-3 text-slate-500 text-sm font-bold uppercase tracking-tight">
-             <li><a href="https://wa.me/917676394923?text=Hi%20I%20want%20to%20buy%20the%20reel%20bundle" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Contact</a></li>
-             <li><a href="#" className="hover:text-white transition-colors">FAQ</a></li>
-             <li><a href="#" className="hover:text-white transition-colors">Privacy</a></li>
-             <li><a href="#" className="hover:text-white transition-colors">Terms</a></li>
+             <li><Link to="/contact-us" className="hover:text-white transition-colors">Contact Us</Link></li>
+             <li><Link to="/terms-conditions" className="hover:text-white transition-colors">Terms & Conditions</Link></li>
+             <li><Link to="/refunds-cancellations" className="hover:text-white transition-colors">Refunds & Cancellations</Link></li>
+             <li><a href="https://wa.me/917676394923?text=Hi%20I%20want%20to%20buy%20the%20reel%20bundle" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors text-primary font-black">WhatsApp Help</a></li>
            </ul>
         </div>
       </div>

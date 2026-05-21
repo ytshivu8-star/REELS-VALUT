@@ -69,12 +69,12 @@ export default function Home() {
           </div>
         </div>
         <div className="flex gap-4">
-          <div className="w-8 h-8 md:w-10 md:h-10 bg-green-500/10 border border-green-500/20 rounded-full flex items-center justify-center text-green-400 cursor-pointer hover:bg-green-500 hover:text-white transition-all">
+          <a href="https://www.instagram.com/webnixo.in" target="_blank" rel="noopener noreferrer" className="w-8 h-8 md:w-10 md:h-10 bg-green-500/10 border border-green-500/20 rounded-full flex items-center justify-center text-green-400 hover:bg-green-500 hover:text-white transition-all">
              <Instagram size={16} />
-          </div>
-          <div className="w-8 h-8 md:w-10 md:h-10 bg-primary/10 border border-primary/20 rounded-full flex items-center justify-center text-primary cursor-pointer hover:bg-primary hover:text-white transition-all">
+          </a>
+          <a href="https://wa.me/917676394923?text=Hi%20I%20want%20to%20buy%20the%20reel%20bundle" target="_blank" rel="noopener noreferrer" className="w-8 h-8 md:w-10 md:h-10 bg-primary/10 border border-primary/20 rounded-full flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all">
              <HeadphonesIcon size={16} />
-          </div>
+          </a>
         </div>
       </div>
 

@@ -19,87 +19,72 @@ interface Review {
   createdAt: string;
 }
 
-const PRESET_REVIEWS: Review[] = [
-  {
-    id: "preset-1",
-    productId: "andrew-tate-motivation",
-    rating: 5,
-    comment: "This Andrew Tate bundle is insane. High-fidelity audio, pristine edits with accurate fonts and subtitles. My views went from 400 to 12.5k on my first video. Worth every rupee!",
-    userName: "Hardik Patel",
-    userEmail: "hardik.creator@gmail.com",
-    createdAt: "2026-05-18T10:30:00.000Z"
-  },
-  {
-    id: "preset-2",
-    productId: "andrew-tate-motivation",
-    rating: 5,
-    comment: "No branding, no watermarks, pure alpha value. Highly recommended for motivation hubs.",
-    userName: "Dev Malhotra",
-    userEmail: "dev.m@yahoo.com",
-    createdAt: "2026-05-15T14:24:00.000Z"
-  },
-  {
-    id: "preset-3",
-    productId: "motivation-reels-bundle",
-    rating: 5,
-    comment: "The general discipline clips inside are super high resolution and synced with outstanding music tracks. Solved my daily editing fatigue. Will buy other packs too!",
-    userName: "Sneha Nair",
-    userEmail: "sneha_creates@gmail.com",
-    createdAt: "2026-05-19T08:15:00.000Z"
-  },
-  {
-    id: "preset-4",
-    productId: "viral-reels-pack",
-    rating: 5,
-    comment: "Incredibly high-conversion clips. Tested 5 of these on a brand-new faceless TikTok/IG page and got 240k views combined on day 3. Completely worth the money.",
-    userName: "Abhishek G.",
-    userEmail: "abhishek.growth@gmail.com",
-    createdAt: "2026-05-20T11:45:00.000Z"
-  },
-  {
-    id: "preset-5",
-    productId: "premium-viral-bundle",
-    rating: 5,
-    comment: "The AI additions and transition cuts in the Premium series are unmatched. They feel incredibly cinematic. Excellent support too, they answered my delivery doubts instantly.",
-    userName: "Riya Sen",
-    userEmail: "riya.creates@gmail.com",
-    createdAt: "2026-05-17T16:20:00.000Z"
-  },
-  {
-    id: "preset-6",
-    productId: "ultimate-reel-mega-pack",
-    rating: 5,
-    comment: "This is the king of all packs. 1000+ reels, high speed download, growth course. Saved me thousands in asset subscriptions and editing packages. Absolutely mind-blown!",
-    userName: "Vikram Rathore",
-    userEmail: "vikram.r@gmail.com",
-    createdAt: "2026-05-21T09:12:00.000Z"
-  }
+const FIVE_STAR_METRICS_DATA = [
+  { name: "Hardik Patel", email: "hardik.p@gmail.com", comment: "Outstanding premium resolution. Ready to schedule on Instagram and TikTok immediately. [BUNDLE_NAME] already got me 15k views!" },
+  { name: "Anish Roy", email: "anish.roy@live.com", comment: "The cinematic transitions in [BUNDLE_NAME] are extremely high quality. Super smooth and absolutely watermark-free." },
+  { name: "Divya Teja", email: "divya@creators.co", comment: "Amazing asset selection in [BUNDLE_NAME]. Saves me at least 4 hours of editing every day. Value is easily 10x of what I paid!" },
+  { name: "Arjun Mehta", email: "mehta.arjun@outlook.com", comment: "Perfect font styling with captions in [BUNDLE_NAME] synced perfectly down to the millisecond. Recommended!" },
+  { name: "Siddharth S.", email: "siddharth@growthlabs.in", comment: "" },
+  { name: "Ketan Trivedi", email: "ketan.t@yahoo.com", comment: "" },
+  { name: "Nisha Rao", email: "nisha.influence@gmail.com", comment: "" },
+  { name: "Kabir Mehta", email: "kabir.mehta@gmail.com", comment: "" },
+  { name: "Pooja Hegde", email: "pooja.hegde@hotmail.com", comment: "" },
+  { name: "Rohan Advani", email: "rohan.creates@gmail.com", comment: "" },
+  { name: "Aditi Sen", email: "aditi.sen@live.in", comment: "" },
+  { name: "Abhishek G.", email: "abhishek.g@outlook.com", comment: "" },
+  { name: "Vikram Rathore", email: "vikram.rathore@gmail.com", comment: "" },
+  { name: "Sanjay Dutta", email: "sanjay_dutta@yahoo.com", comment: "" },
+  { name: "Shruti Murthy", email: "shruti.creates@gmail.com", comment: "" },
+  { name: "Tarun Bajaj", email: "tarun.b@live.com", comment: "" },
+  { name: "Riya Verma", email: "riya.v@outlook.com", comment: "" },
+  { name: "Gaurav Joshi", email: "gaurav_joshi@gmail.com", comment: "" },
+  { name: "Meera Nair", email: "meera.nair@live.com", comment: "" },
+  { name: "Varun Malhotra", email: "varun_creates@outlook.com", comment: "" },
+  { name: "Manish Pandey", email: "manish.p@gmail.com", comment: "" },
+  { name: "Kajal Shah", email: "kajal.shah@yahoo.com", comment: "" },
+  { name: "Aman Sharma", email: "aman.grows@live.com", comment: "" },
+  { name: "Sneha Pillai", email: "sneha_creates@gmail.com", comment: "" },
+  { name: "Rahul Gupta", email: "rahul.gupta@outlook.com", comment: "" }
+];
+
+const FOUR_STAR_METRICS_DATA = [
+  { name: "Vijay Shinde", email: "vijay.s@gmail.com", comment: "Great edits on [BUNDLE_NAME]! The visual composition is superb, though I'd love even more template variety in the future." },
+  { name: "Pranav Shah", email: "pranav.shah@live.com", comment: "" },
+  { name: "Riddhi Sen", email: "riddhi.sen@info.com", comment: "" },
+  { name: "Sameer Sheikh", email: "sameer.sheikh@outlook.com", comment: "" },
+  { name: "Anjali Mishra", email: "anjali.m@gmail.com", comment: "" }
 ];
 
 const getProductPresetReviews = (prodId: string, prodName: string): Review[] => {
-  const matching = PRESET_REVIEWS.filter(r => r.productId === prodId);
-  if (matching.length > 0) return matching;
+  const reviewsList: Review[] = [];
 
-  return [
-    {
-      id: `gen-1-${prodId}`,
+  // 25 five-star reviews
+  FIVE_STAR_METRICS_DATA.forEach((item, idx) => {
+    reviewsList.push({
+      id: `preset-5star-${idx}-${prodId}`,
       productId: prodId,
       rating: 5,
-      comment: `This ${prodName} is an absolute lifesaver. High visual clarity, ready-made files. Instantly downloaded to my Google Drive storage and was ready to go!`,
-      userName: "Kabir Mehta",
-      userEmail: "kabir_m@outlook.com",
-      createdAt: "2026-05-20T04:20:00.000Z"
-    },
-    {
-      id: `gen-2-${prodId}`,
+      comment: item.comment.replace("[BUNDLE_NAME]", prodName),
+      userName: item.name,
+      userEmail: item.email,
+      createdAt: new Date(Date.now() - (idx + 1) * 3600000).toISOString()
+    });
+  });
+
+  // 5 four-star reviews
+  FOUR_STAR_METRICS_DATA.forEach((item, idx) => {
+    reviewsList.push({
+      id: `preset-4star-${idx}-${prodId}`,
       productId: prodId,
-      rating: 5,
-      comment: `Extremely satisfied with the delivery quality of ${prodName}. Fully worth the price point! Ready-to-use materials and highly engaging.`,
-      userName: "Nisha Rao",
-      userEmail: "nisha.influence@gmail.com",
-      createdAt: "2026-05-16T12:05:00.000Z"
-    }
-  ];
+      rating: 4,
+      comment: item.comment.replace("[BUNDLE_NAME]", prodName),
+      userName: item.name,
+      userEmail: item.email,
+      createdAt: new Date(Date.now() - (idx + 26) * 3600000).toISOString()
+    });
+  });
+
+  return reviewsList;
 };
 
 export default function ProductDetail() {
@@ -192,10 +177,12 @@ export default function ProductDetail() {
     ...getProductPresetReviews(id ?? "", product?.name || "Premium Reel Bundle")
   ];
 
+  const writtenReviews = allReviews.filter((rev) => rev.comment && rev.comment.trim() !== "");
+
   const totalReviews = allReviews.length;
   const averageRating = totalReviews > 0 
     ? (allReviews.reduce((acc, r) => acc + r.rating, 0) / totalReviews).toFixed(1)
-    : "5.0";
+    : "4.8";
 
   useEffect(() => {
     if (!id) return;
@@ -514,7 +501,7 @@ export default function ProductDetail() {
                 {/* Reviews Feed Column */}
                 <div className="space-y-4">
                   <div className="text-[10px] uppercase font-black text-slate-500 tracking-widest pl-1">
-                    Feed comments ({totalReviews})
+                    Feed comments ({writtenReviews.length})
                   </div>
 
                   {fetchingReviews ? (
@@ -522,13 +509,13 @@ export default function ProductDetail() {
                       <div className="animate-spin rounded-full h-6 w-6 border-2 border-primary border-t-transparent mx-auto mb-2" />
                       <span className="text-[10px] uppercase font-black tracking-widest">Streaming comments...</span>
                     </div>
-                  ) : allReviews.length === 0 ? (
+                  ) : writtenReviews.length === 0 ? (
                     <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-8 text-center text-slate-500 italic uppercase text-[10px] font-black tracking-widest">
                       No active customer experiences posted yet. Be the first creator!
                     </div>
                   ) : (
                     <div className="space-y-4">
-                      {allReviews.map((rev) => (
+                      {writtenReviews.map((rev) => (
                         <div key={rev.id} className="bg-white/[0.02] border border-white/5 p-5 rounded-2xl space-y-3">
                           <div className="flex items-center justify-between gap-4">
                             <div className="flex items-center gap-3">
