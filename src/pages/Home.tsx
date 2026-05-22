@@ -302,8 +302,8 @@ export default function Home() {
                 </button>
               </div>
 
-              {/* Main portrait 9:16 video frame container - highly responsive exact dimensions to prevent browser control alignments offset to the right */}
-              <div className="aspect-[9/16] w-[270px] sm:w-[290px] md:w-[304px] lg:w-[326px] max-w-[85vw] bg-black rounded-2xl overflow-hidden border border-white/10 relative shadow-inner mx-auto shrink-0 self-center">
+              {/* Main portrait 9:16 video frame container - highly responsive exact dimensions with subtle mobile left-shift to center browser controls perfectly */}
+              <div className="aspect-[9/16] w-[270px] sm:w-[290px] md:w-[304px] lg:w-[326px] max-w-[85vw] bg-black rounded-2xl overflow-hidden border border-white/10 relative shadow-inner mx-auto shrink-0 self-center -translate-x-2 sm:translate-x-0">
                 {useNativePlayer ? (
                   <video
                     src={getDirectStreamUrl(sampleData.clips[activeClipIndex])}
