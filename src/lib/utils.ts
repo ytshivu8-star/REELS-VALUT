@@ -39,3 +39,54 @@ export function getEmbeddableDriveImageUrl(url: string): string {
 
   return trimmed;
 }
+
+export function getEmbeddableDriveVideoUrl(url: string): string {
+  if (!url) return "";
+  const trimmed = url.trim();
+
+  if (trimmed.includes("drive.google.com") || trimmed.includes("docs.google.com")) {
+    const fileDMatch = trimmed.match(/\/file\/d\/([a-zA-Z0-9_-]{25,100})/);
+    if (fileDMatch && fileDMatch[1]) {
+      return `https://drive.google.com/file/d/${fileDMatch[1]}/preview`;
+    }
+
+    const idParamMatch = trimmed.match(/[?&]id=([a-zA-Z0-9_-]{25,100})/);
+    if (idParamMatch && idParamMatch[1]) {
+      return `https://drive.google.com/file/d/${idParamMatch[1]}/preview`;
+    }
+  }
+
+  return trimmed;
+}
+
+export function getDriveFileId(url: string): string {
+  if (!url) return "";
+  const trimmed = url.trim();
+
+  const fileDMatch = trimmed.match(/\/file\/d\/([a-zA-Z0-9_-]{25,100})/);
+  if (fileDMatch && fileDMatch[1]) {
+    return fileDMatch[1];
+  }
+
+  const idParamMatch = trimmed.match(/[?&]id=([a-zA-Z0-9_-]{25,100})/);
+  if (idParamMatch && idParamMatch[1]) {
+    return idParamMatch[1];
+  }
+
+  return "";
+}
+
+export function getDirectStreamUrl(url: string): string {
+  const fileId = getDriveFileId(url);
+  if (!fileId) return "";
+  return `https://docs.google.com/uc?export=download&id=${fileId}`;
+}
+
+export function getDriveVideoThumbnailUrl(url: string, fallback: string): string {
+  const fileId = getDriveFileId(url);
+  if (fileId) {
+    return `https://drive.google.com/thumbnail?id=${fileId}&sz=w600`;
+  }
+  return fallback;
+}
+

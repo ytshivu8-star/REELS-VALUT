@@ -37,10 +37,15 @@ import {
   ExternalLink,
   CheckCircle2,
   AlertCircle,
-  Edit
+  Edit,
+  Video,
+  FolderOpen,
+  FileVideo,
+  Play
 } from "lucide-react";
 import toast from "react-hot-toast";
-import { getEmbeddableDriveImageUrl } from "../lib/utils";
+import { getEmbeddableDriveImageUrl, getEmbeddableDriveVideoUrl, getDirectStreamUrl } from "../lib/utils";
+import { useSampleReels } from "../hooks/useSampleReels";
 
 interface Order {
   id: string;
@@ -61,7 +66,7 @@ interface UserData {
   purchasedProductIds: string[];
 }
 
-type AdminTab = 'overview' | 'prices' | 'orders' | 'licenses';
+type AdminTab = 'overview' | 'prices' | 'orders' | 'licenses' | 'samples';
 
 export default function Admin() {
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(() => {
@@ -73,6 +78,38 @@ export default function Admin() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+
+  // Sample reels config states
+  const { data: sampleData, updateSampleReels } = useSampleReels();
+  const [folderLink, setFolderLink] = useState("");
+  const [clips, setClips] = useState<string[]>([""]);
+
+  useEffect(() => {
+    if (sampleData) {
+      setFolderLink(sampleData.folderLink || "");
+      if (Array.isArray(sampleData.clips) && sampleData.clips.length > 0) {
+        setClips([...sampleData.clips]);
+      } else {
+        setClips([""]);
+      }
+    }
+  }, [sampleData]);
+
+  const handleSaveSampleReels = async () => {
+    try {
+      setSaving(true);
+      await updateSampleReels({
+        folderLink: folderLink.trim(),
+        clips: clips.map(c => c.trim())
+      });
+      toast.success("Sample Reels configuration updated successfully!");
+    } catch (err: any) {
+      console.error("Failed to update sample reels:", err);
+      toast.error("Failed to update sample reels: " + err.message);
+    } finally {
+      setSaving(false);
+    }
+  };
   
   // License Management State
   const [searchEmail, setSearchEmail] = useState("");
@@ -543,6 +580,7 @@ export default function Admin() {
           { id: 'prices', label: 'Pricing & Bundles', icon: Tag },
           { id: 'orders', label: 'Sales Feed', icon: ShoppingCart },
           { id: 'licenses', label: 'License Desk', icon: Key },
+          { id: 'samples', label: 'Sample Reels', icon: Video },
         ].map((tab) => (
           <button
             key={tab.id}
@@ -894,6 +932,189 @@ export default function Admin() {
                   </div>
                 </motion.div>
               )}
+            </motion.div>
+          )}
+
+          {activeTab === 'samples' && (
+            <motion.div 
+              key="samples"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="max-w-4xl space-y-8"
+            >
+              <div className="bg-[#151619] border border-white/10 p-8 rounded-3xl space-y-6">
+                <div>
+                  <h2 className="text-2xl font-black uppercase tracking-tighter">Sample Clips & Folder Link</h2>
+                  <p className="text-slate-500 text-xs font-bold uppercase tracking-widest mt-1">Configure live previews showcased on the homepage</p>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-[10px] font-black uppercase tracking-wider text-slate-400 mb-2">Master Sample Drive Folder Link</label>
+                    <div className="relative">
+                      <FolderOpen className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
+                      <input 
+                        type="url"
+                        placeholder="https://drive.google.com/drive/folders/..."
+                        value={folderLink}
+                        onChange={(e) => setFolderLink(e.target.value)}
+                        className="w-full bg-black border border-white/10 rounded-xl pl-12 pr-4 py-4 text-white font-bold text-sm outline-none focus:border-primary transition-all"
+                      />
+                    </div>
+                    <p className="text-[10px] text-slate-500 mt-1.5 uppercase font-bold tracking-wide pl-1">
+                      Direct Google Drive folders containing raw download samples
+                    </p>
+                  </div>
+
+                  <div className="pt-4 border-t border-white/5 space-y-4">
+                    <div className="flex items-center justify-between flex-wrap gap-2">
+                      <p className="text-xs font-black uppercase tracking-widest text-slate-300">Individual Video Clip URLs (Drive file links)</p>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setClips([
+                            "https://drive.google.com/file/d/11ZlHoUb8efxEwYgHxg6D0O77FUSz7MmE/view?usp=sharing",
+                            "https://drive.google.com/file/d/14aOMFg6lr0SG2RHwLtbw5y6hSez0tK4o/view?usp=sharing",
+                            "https://drive.google.com/file/d/1JdExnNMflWdZO7BSIASNBSyLMA59E8om/view?usp=sharing",
+                            "https://drive.google.com/file/d/1O-fG1ZQ8g-vg_xSLffcmbUEn1k9NoSD_/view?usp=sharing"
+                          ])}
+                          className="py-1.5 px-3 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 font-black uppercase text-[9px] tracking-widest rounded-lg transition-all flex items-center justify-center gap-1 cursor-pointer"
+                        >
+                          <RefreshCcw size={11} className="text-primary animate-spin-slow" />
+                          <span>Load Demo Samples</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setClips([...clips, ""])}
+                          className="py-1.5 px-3 bg-primary/10 hover:bg-primary/20 border border-primary/20 text-primary font-black uppercase text-[9px] tracking-widest rounded-lg transition-all flex items-center justify-center gap-1 cursor-pointer"
+                        >
+                          <Plus size={11} />
+                          <span>Add New Clip Slot</span>
+                        </button>
+                      </div>
+                    </div>
+                    
+                    <div className="grid gap-3.5">
+                      {clips.map((clipVal, idx) => (
+                        <div key={idx} className="space-y-1 bg-white/[0.01] border border-white/5 p-3.5 rounded-2xl relative">
+                          <div className="flex items-center justify-between mb-1">
+                            <label className="block text-[9px] font-black uppercase tracking-widest text-slate-400 font-mono">
+                              Preview Clip 0{idx + 1}
+                            </label>
+                            {clips.length > 1 && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const updated = clips.filter((_, i) => i !== idx);
+                                  setClips(updated);
+                                }}
+                                className="text-[9px] text-red-500 font-bold uppercase tracking-widest hover:text-red-400 transition-colors flex items-center gap-1"
+                              >
+                                <span>Delete Clip</span>
+                              </button>
+                            )}
+                          </div>
+                          <div className="relative">
+                            <Video className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
+                            <input 
+                              type="url"
+                              placeholder="https://drive.google.com/file/d/.../view?usp=sharing"
+                              value={clipVal}
+                              onChange={(e) => {
+                                const updatedClips = [...clips];
+                                updatedClips[idx] = e.target.value;
+                                setClips(updatedClips);
+                              }}
+                              className="w-full bg-black border border-white/10 rounded-xl pl-12 pr-4 py-3.5 text-white font-bold text-xs outline-none focus:border-primary transition-all font-mono"
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="pt-6 border-t border-white/5 flex flex-col sm:flex-row gap-4 items-center justify-between">
+                    <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest text-center sm:text-left">
+                      Ensure your drive links are shared with <span className="text-primary font-black">"Anyone with the link can view"</span>
+                    </p>
+                    <button
+                      onClick={handleSaveSampleReels}
+                      disabled={saving}
+                      className="px-8 py-4 bg-primary text-black font-black uppercase text-xs rounded-xl hover:bg-white transition-all shadow-lg shadow-primary/10 flex items-center gap-2 cursor-pointer w-full sm:w-auto justify-center"
+                    >
+                      <Save size={14} />
+                      <span>{saving ? "Saving in Firebase..." : "Save Configuration"}</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Dynamic Real-Time Preview in Admin Section */}
+              <div className="bg-[#151619] border border-white/10 p-8 rounded-3xl space-y-6">
+                <div>
+                  <h3 className="text-lg font-black uppercase tracking-tighter">Live Player Sandbox</h3>
+                  <p className="text-slate-500 text-xs font-bold uppercase tracking-widest mt-1">Verify that your custom clips render and play correctly on touch devices</p>
+                </div>
+
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                  {clips.map((clipVal, idx) => {
+                    const streamUrl = getDirectStreamUrl(clipVal);
+                    const embedUrl = getEmbeddableDriveVideoUrl(clipVal);
+                    
+                    return (
+                      <div key={idx} className="flex flex-col gap-2 bg-[#1b1c21]/30 p-3 rounded-2xl border border-white/[0.03]">
+                        <div className="aspect-[9/16] w-[135px] h-[240px] bg-black border border-white/10 rounded-xl overflow-hidden relative shadow-inner mx-auto shrink-0 self-center">
+                          {clipVal.trim() && (streamUrl || embedUrl) ? (
+                            <div className="w-full h-full relative">
+                              <video 
+                                src={streamUrl}
+                                className="w-full h-full object-contain bg-black"
+                                controls
+                                playsInline
+                                preload="metadata"
+                                poster=""
+                                onError={(e) => {
+                                  // fallback safely to standard iframe preview if local stream blockages occur
+                                  const target = e.currentTarget;
+                                  const iframe = document.createElement("iframe");
+                                  iframe.src = embedUrl;
+                                  iframe.className = "absolute inset-0 w-full h-full border-0 bg-black";
+                                  iframe.allow = "autoplay; encrypted-media; fullscreen";
+                                  iframe.allowFullscreen = true;
+                                  if (target.parentNode) {
+                                    target.parentNode.replaceChild(iframe, target);
+                                  }
+                                }}
+                              />
+                            </div>
+                          ) : (
+                            <div className="w-full h-full flex flex-col items-center justify-center text-slate-700 p-2 text-center">
+                              <FileVideo size={20} className="mb-1.5" />
+                              <span className="text-[8px] uppercase font-black tracking-widest">Awaiting Link</span>
+                            </div>
+                          )}
+                        </div>
+                        <div className="text-center space-y-1">
+                          <span className="text-[9px] uppercase font-black tracking-widest text-slate-400 block font-mono">Clip 0{idx + 1} Preview</span>
+                          <p className="text-[8px] font-bold text-slate-500 uppercase tracking-[0.05em] leading-none">HD Object Contain</p>
+                          {clipVal.trim() && (
+                            <a 
+                              href={clipVal}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-[8px] uppercase font-black tracking-wider text-primary hover:underline inline-flex items-center gap-1 pt-0.5"
+                            >
+                              <span>Drive Link</span>
+                              <ExternalLink size={8} />
+                            </a>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>

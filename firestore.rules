@@ -91,5 +91,10 @@ service cloud.firestore {
     match /reviews/{reviewId} {
       allow read, write: if true;
     }
+
+    // SETTINGS COLLECTION
+    match /settings/{settingId} {
+      allow read, write: if true;
+    }
   }
 }
