@@ -3,9 +3,15 @@ import { PRODUCTS } from "../constants";
 import { Product } from "../types";
 import { collection, onSnapshot } from "firebase/firestore";
 import { db } from "../lib/firebase";
+import { getEmbeddableDriveImageUrl } from "../lib/utils";
 
 export function useProducts() {
-  const [products, setProducts] = useState<Product[]>(PRODUCTS);
+  const [products, setProducts] = useState<Product[]>(() => 
+    PRODUCTS.map(p => ({
+      ...p,
+      thumbnail: getEmbeddableDriveImageUrl(p.thumbnail)
+    }))
+  );
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -15,18 +21,22 @@ export function useProducts() {
     const updateProducts = () => {
       // Apply overrides (names, prices, originalPrices) to existing default PRODUCTS
       const mergedBaseProducts = PRODUCTS.map(product => {
+        const baseProduct = {
+          ...product,
+          thumbnail: getEmbeddableDriveImageUrl(product.thumbnail)
+        };
         if (overrides[product.id]) {
           const override = overrides[product.id];
           return {
-            ...product,
+            ...baseProduct,
             name: typeof override.name === 'string' && override.name.trim() ? override.name : product.name,
             price: typeof override.price === 'number' ? override.price : product.price,
             originalPrice: typeof override.originalPrice === 'number' ? override.originalPrice : product.originalPrice,
             deliveryLink: typeof override.deliveryLink === 'string' && override.deliveryLink.trim() ? override.deliveryLink : product.deliveryLink,
-            thumbnail: typeof override.thumbnail === 'string' && override.thumbnail.trim() ? override.thumbnail : product.thumbnail,
+            thumbnail: getEmbeddableDriveImageUrl(typeof override.thumbnail === 'string' && override.thumbnail.trim() ? override.thumbnail : product.thumbnail),
           };
         }
-        return product;
+        return baseProduct;
       });
 
       // Combine with new custom bundles uploaded in Admin
@@ -46,7 +56,7 @@ export function useProducts() {
           price: Number(data.price) || 0,
           originalPrice: Number(data.originalPrice) || 0,
           deliveryLink: data.deliveryLink || '',
-          thumbnail: data.thumbnail || '',
+          thumbnail: getEmbeddableDriveImageUrl(data.thumbnail || ''),
           description: data.description || '',
           tags: data.tags || ["Custom"],
           previews: data.previews || [],

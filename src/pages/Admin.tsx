@@ -40,6 +40,7 @@ import {
   Edit
 } from "lucide-react";
 import toast from "react-hot-toast";
+import { getEmbeddableDriveImageUrl } from "../lib/utils";
 
 interface Order {
   id: string;
@@ -126,7 +127,7 @@ export default function Admin() {
         price: priceNum,
         originalPrice: originalPriceNum,
         deliveryLink: newBundleDeliveryLink.trim(),
-        thumbnail: newBundleThumbnail.trim(),
+        thumbnail: getEmbeddableDriveImageUrl(newBundleThumbnail.trim()),
         description: newBundleDescription.trim() || "High quality viral content pack.",
         tags: ["Custom", "New"],
         previews: [],
@@ -192,7 +193,7 @@ export default function Admin() {
           price: priceNum,
           originalPrice: originalPriceNum,
           deliveryLink: editBundleDeliveryLink.trim() || selectedProduct.deliveryLink,
-          thumbnail: editBundleThumbnail.trim() || selectedProduct.thumbnail,
+          thumbnail: getEmbeddableDriveImageUrl(editBundleThumbnail.trim() || selectedProduct.thumbnail),
           updatedAt: new Date().toISOString()
         };
         await setDoc(doc(db, 'pricing_overrides', selectedProduct.id), payload, { merge: true });
@@ -204,7 +205,7 @@ export default function Admin() {
           price: priceNum,
           originalPrice: originalPriceNum,
           deliveryLink: editBundleDeliveryLink.trim(),
-          thumbnail: editBundleThumbnail.trim(),
+          thumbnail: getEmbeddableDriveImageUrl(editBundleThumbnail.trim()),
           description: editBundleDescription.trim(),
           updatedAt: new Date().toISOString()
         };
