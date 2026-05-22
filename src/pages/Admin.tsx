@@ -1066,28 +1066,26 @@ export default function Admin() {
                       <div key={idx} className="flex flex-col gap-2 bg-[#1b1c21]/30 p-3 rounded-2xl border border-white/[0.03]">
                         <div className="aspect-[9/16] w-[135px] h-[240px] bg-black border border-white/10 rounded-xl overflow-hidden relative shadow-inner mx-auto shrink-0 self-center">
                           {clipVal.trim() && (streamUrl || embedUrl) ? (
-                            <div className="w-full h-full relative">
-                              <video 
-                                src={streamUrl}
-                                className="w-full h-full object-contain bg-black"
-                                controls
-                                playsInline
-                                preload="metadata"
-                                poster=""
-                                onError={(e) => {
-                                  // fallback safely to standard iframe preview if local stream blockages occur
-                                  const target = e.currentTarget;
-                                  const iframe = document.createElement("iframe");
-                                  iframe.src = embedUrl;
-                                  iframe.className = "absolute inset-0 w-full h-full border-0 bg-black";
-                                  iframe.allow = "autoplay; encrypted-media; fullscreen";
-                                  iframe.allowFullscreen = true;
-                                  if (target.parentNode) {
-                                    target.parentNode.replaceChild(iframe, target);
-                                  }
-                                }}
-                              />
-                            </div>
+                            <video 
+                              src={streamUrl}
+                              className="absolute inset-0 w-full h-full object-cover bg-black rounded-xl block"
+                              controls
+                              playsInline
+                              preload="metadata"
+                              poster=""
+                              onError={(e) => {
+                                // fallback safely to standard iframe preview if local stream blockages occur
+                                const target = e.currentTarget;
+                                const iframe = document.createElement("iframe");
+                                iframe.src = embedUrl;
+                                iframe.className = "absolute inset-0 w-full h-full border-0 bg-black rounded-xl block";
+                                iframe.allow = "autoplay; encrypted-media; fullscreen";
+                                iframe.allowFullscreen = true;
+                                if (target.parentNode) {
+                                  target.parentNode.replaceChild(iframe, target);
+                                }
+                              }}
+                            />
                           ) : (
                             <div className="w-full h-full flex flex-col items-center justify-center text-slate-700 p-2 text-center">
                               <FileVideo size={20} className="mb-1.5" />

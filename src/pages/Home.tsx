@@ -303,7 +303,7 @@ export default function Home() {
               </div>
 
               {/* Main portrait 9:16 video frame container - highly responsive exact dimensions to prevent browser control alignments offset to the right */}
-              <div className="aspect-[9/16] w-[202px] sm:w-[270px] md:w-[304px] lg:w-[326px] max-w-full bg-black rounded-2xl overflow-hidden border border-white/10 relative shadow-inner mx-auto shrink-0 self-center">
+              <div className="aspect-[9/16] w-[270px] sm:w-[290px] md:w-[304px] lg:w-[326px] max-w-[85vw] bg-black rounded-2xl overflow-hidden border border-white/10 relative shadow-inner mx-auto shrink-0 self-center">
                 {useNativePlayer ? (
                   <video
                     src={getDirectStreamUrl(sampleData.clips[activeClipIndex])}
@@ -311,7 +311,7 @@ export default function Home() {
                     controls
                     loop
                     playsInline
-                    className="w-full h-full object-contain bg-black"
+                    className="absolute inset-0 w-full h-full object-cover bg-black rounded-2xl block"
                     onError={() => {
                       console.warn("Direct stream failed to buffer. Swapping to Drive fallback preview.");
                       setUseNativePlayer(false);
@@ -320,7 +320,7 @@ export default function Home() {
                 ) : (
                   <iframe
                     src={getEmbeddableDriveVideoUrl(sampleData.clips[activeClipIndex])}
-                    className="absolute inset-0 w-full h-full border-0 bg-black"
+                    className="absolute inset-0 w-full h-full border-0 bg-black rounded-2xl block"
                     allow="autoplay; encrypted-media; fullscreen"
                     allowFullScreen
                     title={`Lightbox Sample Reel Preview ${activeClipIndex + 1}`}
