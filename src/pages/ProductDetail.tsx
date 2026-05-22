@@ -7,7 +7,7 @@ import { useAuth } from "../context/AuthContext";
 import toast from "react-hot-toast";
 import { useState, useEffect } from "react";
 import { db } from "../lib/firebase";
-import { doc, onSnapshot, addDoc, collection, query, where, orderBy } from "firebase/firestore";
+import { doc, onSnapshot, addDoc, collection, query, where, orderBy, setDoc } from "firebase/firestore";
 import { useProducts } from "../hooks/useProducts";
 
 interface Review {
@@ -258,6 +258,19 @@ export default function ProductDetail() {
       if (!orderData || !orderData.payment_session_id) {
         throw new Error("Invalid response from payment server");
       }
+
+      // Pre-save pending order metadata in Firestore so it can be claimed permanently even if the session is lost/changed on redirect
+      await setDoc(doc(db, 'orders', orderData.order_id), {
+        userId: activeUser?.uid || null,
+        userEmail: (activeUser?.email || checkoutEmail || "").trim().toLowerCase(),
+        userName: activeUser?.displayName || checkoutName || "Customer",
+        productId: product.id,
+        amount: product.price,
+        status: 'pending',
+        createdAt: new Date().toISOString()
+      }).catch(err => {
+        console.warn("Could not pre-save pending order in Firestore:", err);
+      });
 
       // 2. Initialize Cashfree SDK with dynamic environment aligned with server-side secrets
       // @ts-ignore

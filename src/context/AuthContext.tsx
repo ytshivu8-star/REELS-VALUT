@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut } from 'firebase/auth';
-import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc, query, collection, where, getDocs } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
 import { UserProfile } from '../types';
 import toast from 'react-hot-toast';
@@ -106,12 +106,108 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => unsubscribe();
   }, []);
 
+  const syncUserPurchases = async (uid: string, email: string): Promise<boolean> => {
+    if (!uid || !email) return false;
+    try {
+      const trimmedEmail = email.trim().toLowerCase();
+      
+      const q1 = query(
+        collection(db, 'orders'), 
+        where('userEmail', '==', trimmedEmail),
+        where('status', '==', 'completed')
+      );
+      const q2 = query(
+        collection(db, 'orders'), 
+        where('userId', '==', uid),
+        where('status', '==', 'completed')
+      );
+      
+      const [snap1, snap2] = await Promise.all([
+        getDocs(q1).catch(() => ({ forEach: () => {} })),
+        getDocs(q2).catch(() => ({ forEach: () => {} }))
+      ]);
+      
+      const purchasedIds = new Set<string>();
+      
+      snap1.forEach((docSnap: any) => {
+        if (docSnap.exists()) {
+          const d = docSnap.data();
+          if (d.productId) purchasedIds.add(d.productId);
+        }
+      });
+
+      snap2.forEach((docSnap: any) => {
+        if (docSnap.exists()) {
+          const d = docSnap.data();
+          if (d.productId) purchasedIds.add(d.productId);
+        }
+      });
+
+      if (purchasedIds.size > 0) {
+        const userRef = doc(db, 'users', uid);
+        const userSnap = await getDoc(userRef).catch(() => null);
+        
+        let existingPacks: string[] = [];
+        let profileExists = false;
+        let userData: any = {};
+        
+        if (userSnap && userSnap.exists()) {
+          userData = userSnap.data();
+          existingPacks = userData.purchasedProductIds || [];
+          profileExists = true;
+        }
+        
+        let updated = false;
+        purchasedIds.forEach(pId => {
+          if (!existingPacks.includes(pId)) {
+            existingPacks.push(pId);
+            updated = true;
+          }
+        });
+        
+        if (updated || !profileExists) {
+          if (profileExists) {
+            await updateDoc(userRef, {
+              purchasedProductIds: existingPacks
+            }).catch(e => console.error("Error updating synced purchases:", e));
+          } else {
+            const adminEmails = ['ytshivu8@gmail.com', 'shivanagouda.012@gmail.com'];
+            const shouldBeAdmin = adminEmails.includes(trimmedEmail);
+            await setDoc(userRef, {
+              uid,
+              email: trimmedEmail,
+              displayName: userData.displayName || '',
+              isAdmin: userData.isAdmin || shouldBeAdmin,
+              purchasedProductIds: existingPacks
+            }, { merge: true }).catch(e => console.error("Error setting synced profile:", e));
+          }
+          
+          if (uid.startsWith('manual_')) {
+            const freshProfile = {
+              uid,
+              email: trimmedEmail,
+              displayName: userData.displayName || '',
+              isAdmin: userData.isAdmin || false,
+              purchasedProductIds: existingPacks
+            };
+            localStorage.setItem('manual_session_profile', JSON.stringify(freshProfile));
+          }
+          console.log("Successfully synced completed orders into user's purchased packs:", existingPacks);
+          return true;
+        }
+      }
+    } catch (error) {
+      console.error("Error running syncUserPurchases:", error);
+    }
+    return false;
+  };
+
   const fetchProfile = async (currentUser: any) => {
     try {
       const docRef = doc(db, 'users', currentUser.uid);
       
       // Try to get document, but don't let a single failure block everything
-      const docSnap = await getDoc(docRef).catch(err => {
+      let docSnap = await getDoc(docRef).catch(err => {
         console.warn("Initial getDoc failed, might be offline:", err.message);
         return null;
       });
@@ -120,6 +216,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const existingEmail = docSnap && docSnap.exists() ? (docSnap.data() as UserProfile).email : '';
       const emailToCheck = currentUser.email || existingEmail || '';
       const shouldBeAdmin = emailToCheck ? adminEmails.includes(emailToCheck.trim().toLowerCase()) : false;
+
+      if (currentUser.uid && emailToCheck) {
+        const synced = await syncUserPurchases(currentUser.uid, emailToCheck);
+        if (synced) {
+          docSnap = await getDoc(docRef).catch(() => docSnap);
+        }
+      }
 
       if (docSnap && docSnap.exists()) {
         const data = docSnap.data() as UserProfile;

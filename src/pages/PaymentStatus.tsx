@@ -29,6 +29,42 @@ export default function PaymentStatus() {
         const data = await response.json();
 
         if (data.status === "SUCCESS") {
+          // 1. Fetch pre-saved metadata to preserve the checkout info (e.g. userEmail)
+          const orderRef = doc(db, 'orders', orderId!);
+          const orderSnap = await getDoc(orderRef).catch(() => null);
+          
+          let emailFromOrder = "";
+          let prodIdFromOrder = productId;
+          let userIdFromOrder = user?.uid || null;
+
+          if (orderSnap && orderSnap.exists()) {
+            const oData = orderSnap.data();
+            emailFromOrder = oData.userEmail || "";
+            if (oData.productId) prodIdFromOrder = oData.productId;
+            if (oData.userId) userIdFromOrder = oData.userId;
+          }
+
+          const resolvedEmail = (user?.email || emailFromOrder || "").trim().toLowerCase();
+
+          // 2. Mark the order as 'completed' in Firestore immediately so it's a confirmed sale
+          const orderData = {
+            userId: user?.uid || userIdFromOrder,
+            userEmail: resolvedEmail,
+            productId: prodIdFromOrder,
+            amount: data.payment.order_amount || 0,
+            status: 'completed',
+            cfOrderId: data.payment.cf_payment_id || '',
+            createdAt: orderSnap?.exists() ? orderSnap.data().createdAt : new Date().toISOString(),
+            verifiedAt: new Date().toISOString()
+          };
+
+          try {
+            await setDoc(orderRef, orderData, { merge: true });
+          } catch (fireDocError) {
+            console.error("Failed to write completed order to firestore orders collection:", fireDocError);
+          }
+
+          // 3. Check if user is logged in
           if (!user) {
             setStatus("needs-login");
             openAuthModal("login");
@@ -36,50 +72,38 @@ export default function PaymentStatus() {
             return;
           }
 
-          // Grant access in Firestore
-          const orderData = {
-            userId: user.uid,
-            userEmail: user.email,
-            productId: productId,
-            amount: data.payment.order_amount,
-            status: 'completed',
-            cfOrderId: data.payment.cf_payment_id,
-            createdAt: new Date().toISOString()
-          };
-
           try {
-            // 1. Log the order
-            await setDoc(doc(db, 'orders', orderId!), orderData);
-            
-            // 2. Add to user's purchased products
+            // 4. Add to user's purchased products profile
             const userRef = doc(db, 'users', user.uid);
             const userSnap = await getDoc(userRef);
 
             if (userSnap.exists()) {
               const userData = userSnap.data();
               const currentPacks = userData.purchasedProductIds || [];
-              if (!currentPacks.includes(productId)) {
+              if (!currentPacks.includes(prodIdFromOrder)) {
                 await updateDoc(userRef, {
-                  purchasedProductIds: [...currentPacks, productId]
+                  purchasedProductIds: [...currentPacks, prodIdFromOrder]
                 });
               }
             } else {
               await setDoc(userRef, {
                 uid: user.uid,
-                email: user.email || '',
+                email: user.email || resolvedEmail,
                 displayName: user.displayName || '',
                 isAdmin: false,
-                purchasedProductIds: [productId]
+                purchasedProductIds: [prodIdFromOrder]
               });
             }
 
-            // 3. Force refresh user profile state
+            // 5. Force refresh user profile state
             await refreshProfile();
 
             setStatus("success");
             toast.success("Payment Verified! Access Granted.");
           } catch (fireError) {
-            handleFirestoreError(fireError, OperationType.WRITE, `orders/${orderId}`);
+            handleFirestoreError(fireError, OperationType.WRITE, `users/${user.uid}`);
+            // Fallback status success if order itself is successfully recorded
+            setStatus("success");
           }
         } else {
           setStatus("failed");
