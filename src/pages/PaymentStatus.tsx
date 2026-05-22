@@ -12,16 +12,15 @@ export default function PaymentStatus() {
   const [searchParams] = useSearchParams();
   const orderId = searchParams.get("order_id");
   const navigate = useNavigate();
-  const { user, refreshProfile } = useAuth();
-  const [status, setStatus] = useState<"loading" | "success" | "failed">("loading");
+  const { user, refreshProfile, openAuthModal } = useAuth();
+  const [status, setStatus] = useState<"loading" | "success" | "failed" | "needs-login">("loading");
 
   const productId = searchParams.get("product_id");
   const product = PRODUCTS.find((p) => p.id === productId);
 
   useEffect(() => {
     async function verifyPayment() {
-      if (!orderId || !user || !productId) {
-        if (!user && status === "loading") toast.error("Please login to verify payment");
+      if (!orderId || !productId) {
         return;
       }
 
@@ -30,6 +29,13 @@ export default function PaymentStatus() {
         const data = await response.json();
 
         if (data.status === "SUCCESS") {
+          if (!user) {
+            setStatus("needs-login");
+            openAuthModal("login");
+            toast.success("Payment Verified! Please login or register to claim and unlock your bundle.");
+            return;
+          }
+
           // Grant access in Firestore
           const orderData = {
             userId: user.uid,
@@ -95,6 +101,34 @@ export default function PaymentStatus() {
           <h1 className="text-3xl font-black uppercase tracking-tighter">Verifying Payment...</h1>
           <p className="text-slate-500 uppercase text-xs font-bold tracking-widest">Please do not close this window</p>
         </div>
+      )}
+
+      {status === "needs-login" && (
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="max-w-md mx-auto space-y-6"
+        >
+          <div className="relative inline-block">
+            <CheckCircle2 size={80} className="text-[#00E5FF] mx-auto relative z-10" />
+            <div className="absolute inset-0 bg-[#00E5FF]/20 blur-2xl rounded-full" />
+          </div>
+          
+          <div>
+            <h1 className="text-3xl sm:text-4xl font-black uppercase tracking-tighter mb-2">Payment Verified!</h1>
+            <p className="text-slate-400 uppercase text-xs font-black tracking-widest max-w-sm mx-auto leading-relaxed">
+              Your transaction was successful. Please link this purchase by logging in or registering.
+            </p>
+          </div>
+
+          <button 
+            onClick={() => openAuthModal("login")}
+            className="w-full py-4 bg-primary hover:bg-white text-black font-black uppercase text-xs rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg"
+          >
+            <span>Login / Register to Access Bundle</span>
+            <ArrowRight size={14} />
+          </button>
+        </motion.div>
       )}
 
       {status === "success" && (
