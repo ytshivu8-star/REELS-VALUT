@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import ProductCard from "../components/home/ProductCard";
 import Hero from "../components/home/Hero";
 import { useProducts } from "../hooks/useProducts";
@@ -40,6 +40,27 @@ export default function Home() {
   const [sortBy, setSortBy] = useState<"featured" | "price-low" | "price-high">("featured");
   const [activeClipIndex, setActiveClipIndex] = useState<number | null>(null);
   const [useNativePlayer, setUseNativePlayer] = useState<boolean>(true);
+  const [isPlaying, setIsPlaying] = useState<boolean>(true);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  const togglePlay = () => {
+    if (!videoRef.current) return;
+    if (isPlaying) {
+      videoRef.current.pause();
+      setIsPlaying(false);
+    } else {
+      videoRef.current.play().then(() => {
+        setIsPlaying(true);
+      }).catch(err => {
+        console.warn("Play dynamic error or interrupted:", err);
+      });
+    }
+  };
+
+  // Ensure play state is always reset to active when the active clip index shifts
+  useEffect(() => {
+    setIsPlaying(true);
+  }, [activeClipIndex]);
 
   const sortedProducts = [...products].sort((a, b) => {
     if (sortBy === "price-low") {
@@ -305,18 +326,107 @@ export default function Home() {
               {/* Main portrait 9:16 video frame container - highly responsive exact dimensions with subtle mobile left-shift to center browser controls perfectly */}
               <div className="aspect-[9/16] w-[270px] sm:w-[290px] md:w-[304px] lg:w-[326px] max-w-[85vw] bg-black rounded-2xl overflow-hidden border border-white/10 relative shadow-inner mx-auto shrink-0 self-center -translate-x-2 sm:translate-x-0">
                 {useNativePlayer ? (
-                  <video
-                    src={getDirectStreamUrl(sampleData.clips[activeClipIndex])}
-                    autoPlay
-                    controls
-                    loop
-                    playsInline
-                    className="absolute inset-0 w-full h-full object-cover bg-black rounded-2xl block"
-                    onError={() => {
-                      console.warn("Direct stream failed to buffer. Swapping to Drive fallback preview.");
-                      setUseNativePlayer(false);
-                    }}
-                  />
+                  <div 
+                    onClick={togglePlay}
+                    className="absolute inset-0 w-full h-full cursor-pointer group/video-container"
+                  >
+                    <video
+                      ref={videoRef}
+                      src={getDirectStreamUrl(sampleData.clips[activeClipIndex])}
+                      autoPlay
+                      loop
+                      playsInline
+                      className="absolute inset-0 w-full h-full object-cover bg-black rounded-2xl block"
+                      onPlay={() => setIsPlaying(true)}
+                      onPause={() => setIsPlaying(false)}
+                      onError={() => {
+                        console.warn("Direct stream failed to buffer. Swapping to Drive fallback preview.");
+                        setUseNativePlayer(false);
+                      }}
+                    />
+
+                    {/* Centered play/pause floating indicator overlay */}
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/10 transition-colors pointer-events-none">
+                      <AnimatePresence mode="wait">
+                        {!isPlaying ? (
+                          <motion.div
+                            initial={{ scale: 0.5, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.5, opacity: 0 }}
+                            className="w-16 h-16 rounded-full bg-primary/95 text-black flex items-center justify-center shadow-2xl shadow-primary/40 backdrop-blur-sm pointer-events-auto cursor-pointer border border-primary/20"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              togglePlay();
+                            }}
+                          >
+                            <Play size={28} className="ml-1 fill-current text-black" />
+                          </motion.div>
+                        ) : (
+                          <motion.div
+                            initial={{ opacity: 0 }}
+                            whileHover={{ opacity: 1 }}
+                            className="w-16 h-16 rounded-full bg-black/40 text-white flex items-center justify-center shadow-lg backdrop-blur-sm opacity-0 group-hover/video-container:opacity-100 transition-opacity duration-300 pointer-events-auto cursor-pointer border border-white/10"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              togglePlay();
+                            }}
+                          >
+                            <svg 
+                              xmlns="http://www.w3.org/2000/svg" 
+                              width="24" 
+                              height="24" 
+                              viewBox="0 0 24 24" 
+                              fill="currentColor" 
+                              stroke="currentColor" 
+                              strokeWidth="2" 
+                              strokeLinecap="round" 
+                              strokeLinejoin="round" 
+                              className="fill-current text-white"
+                            >
+                              <rect x="14" y="4" width="4" height="16" rx="1" />
+                              <rect x="6" y="4" width="4" height="16" rx="1" />
+                            </svg>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+
+                    {/* Bottom strip overlay with ONLY play and pause toggle */}
+                    <div className="absolute bottom-4 left-0 right-0 flex justify-center z-10 pointer-events-none">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          togglePlay();
+                        }}
+                        className="pointer-events-auto py-2 px-4 rounded-xl bg-black/85 backdrop-blur-md border border-white/10 hover:border-white/20 text-white hover:text-primary transition-all flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest shadow-xl cursor-pointer"
+                      >
+                        {isPlaying ? (
+                          <>
+                            <svg 
+                              xmlns="http://www.w3.org/2000/svg" 
+                              width="10" 
+                              height="10" 
+                              viewBox="0 0 24 24" 
+                              fill="currentColor" 
+                              stroke="currentColor" 
+                              strokeWidth="2.5" 
+                              className="fill-current"
+                            >
+                              <rect x="14" y="4" width="4" height="16" rx="1" />
+                              <rect x="6" y="4" width="4" height="16" rx="1" />
+                            </svg>
+                            <span>Pause</span>
+                          </>
+                        ) : (
+                          <>
+                            <Play size={10} className="fill-current" />
+                            <span>Play</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
                 ) : (
                   <iframe
                     src={getEmbeddableDriveVideoUrl(sampleData.clips[activeClipIndex])}
