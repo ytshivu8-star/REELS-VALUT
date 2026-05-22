@@ -43,15 +43,15 @@ export default function Home() {
 
           {/* Pricing Sort Options */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 mb-8 border-b border-white/5">
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full sm:w-auto">
               <span className="text-slate-500 text-[10px] sm:text-xs font-black uppercase tracking-widest flex items-center gap-1.5">
                 <ArrowUpDown size={12} className="text-primary" /> Sort by price:
               </span>
-              <div className="flex items-center gap-1 bg-black/60 border border-white/5 p-1 rounded-xl">
+              <div className="flex items-center gap-1 bg-black/60 border border-white/5 p-1 rounded-xl w-full sm:w-auto justify-between sm:justify-start">
                 <button
                   id="sort-featured"
                   onClick={() => setSortBy("featured")}
-                  className={`px-3 py-1.5 text-[10px] sm:text-xs font-black uppercase tracking-wider rounded-lg transition-all ${
+                  className={`flex-1 sm:flex-none px-3 py-1.5 text-[10px] sm:text-xs font-black uppercase tracking-wider rounded-lg transition-all text-center ${
                     sortBy === "featured"
                       ? "bg-primary text-black"
                       : "text-slate-400 hover:text-white"
@@ -62,7 +62,7 @@ export default function Home() {
                 <button
                   id="sort-price-low"
                   onClick={() => setSortBy("price-low")}
-                  className={`px-3 py-1.5 text-[10px] sm:text-xs font-black uppercase tracking-wider rounded-lg transition-all ${
+                  className={`flex-1 sm:flex-none px-3 py-1.5 text-[10px] sm:text-xs font-black uppercase tracking-wider rounded-lg transition-all text-center ${
                     sortBy === "price-low"
                       ? "bg-primary text-black"
                       : "text-slate-400 hover:text-white"
@@ -73,7 +73,7 @@ export default function Home() {
                 <button
                   id="sort-price-high"
                   onClick={() => setSortBy("price-high")}
-                  className={`px-3 py-1.5 text-[10px] sm:text-xs font-black uppercase tracking-wider rounded-lg transition-all ${
+                  className={`flex-1 sm:flex-none px-3 py-1.5 text-[10px] sm:text-xs font-black uppercase tracking-wider rounded-lg transition-all text-center ${
                     sortBy === "price-high"
                       ? "bg-primary text-black"
                       : "text-slate-400 hover:text-white"
@@ -83,7 +83,7 @@ export default function Home() {
                 </button>
               </div>
             </div>
-            <div className="text-[10px] sm:text-xs text-slate-400 uppercase font-bold tracking-wider">
+            <div className="text-[10px] sm:text-xs text-slate-400 uppercase font-bold tracking-wider text-left sm:text-right">
               Showing <span className="text-primary font-black">{sortedProducts.length}</span> premium bundles
             </div>
           </div>

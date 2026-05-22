@@ -104,6 +104,9 @@ export default function Admin() {
   const [editBundleDescription, setEditBundleDescription] = useState("");
   const [isSavingEditBundle, setIsSavingEditBundle] = useState(false);
 
+  // Stateful confirmations to avoid iframe/window.confirm limitations
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+
   const handleAddBundle = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newBundleName.trim() || !newBundlePrice || !newBundleOriginalPrice || !newBundleDeliveryLink.trim() || !newBundleThumbnail.trim()) {
@@ -250,6 +253,19 @@ export default function Admin() {
     setIsAdminAuthenticated(false);
     localStorage.removeItem('admin_access_session');
     toast.success("Session Terminated");
+  };
+
+  const handleDeleteOrder = async (orderId: string) => {
+    try {
+      await deleteDoc(doc(db, 'orders', orderId));
+      toast.success("Pending order successfully removed!");
+      if (confirmDeleteId === orderId) {
+        setConfirmDeleteId(null);
+      }
+    } catch (err: any) {
+      console.error("Delete order failed:", err);
+      toast.error("Failed to delete order: " + err.message);
+    }
   };
 
   useEffect(() => {
@@ -563,7 +579,7 @@ export default function Admin() {
             >
               <StatCard label="Total Revenue" value={`₹${orders.filter(o => o.status === 'SUCCESS' || o.status === 'completed').reduce((acc, current) => acc + current.amount, 0)}`} icon={ShoppingCart} color="text-green-400" />
               <StatCard label="Total Orders" value={orders.length.toString()} icon={FileText} color="text-blue-400" />
-              <StatCard label="Active Bundles" value={PRODUCTS.length.toString()} icon={Tag} color="text-primary" />
+              <StatCard label="Active Bundles" value={products.length.toString()} icon={Tag} color="text-primary" />
               <StatCard label="Server Status" value="Online" icon={ShieldCheck} color="text-emerald-400" />
               
               <div className="md:col-span-2 lg:col-span-4 mt-8 bg-white/5 border border-white/10 p-8 rounded-3xl">
@@ -705,12 +721,13 @@ export default function Admin() {
                         <th className="px-6 py-4">Bundle</th>
                         <th className="px-6 py-4">Amount</th>
                         <th className="px-6 py-4">Date</th>
+                        <th className="px-6 py-4 text-right">Actions</th>
                       </tr>
                     </thead>
                     <tbody className="text-xs divide-y divide-white/5">
                       {orders.length === 0 ? (
                         <tr>
-                          <td colSpan={5} className="px-6 py-12 text-center text-slate-500 uppercase font-bold tracking-widest italic">
+                          <td colSpan={6} className="px-6 py-12 text-center text-slate-500 uppercase font-bold tracking-widest italic">
                             No transaction records found in the current buffer.
                           </td>
                         </tr>
@@ -738,6 +755,41 @@ export default function Admin() {
                             <td className="px-6 py-4 uppercase font-black tracking-tight text-slate-400">{order.productId}</td>
                             <td className="px-6 py-4 font-black">₹{order.amount}</td>
                             <td className="px-6 py-4 text-slate-500 font-mono text-[10px]">{new Date(order.createdAt).toLocaleDateString()}</td>
+                            <td className="px-6 py-4 text-right">
+                              {/* Option to delete pending style transactions */}
+                              {order.status === 'pending' ? (
+                                confirmDeleteId === order.id ? (
+                                  <div className="flex items-center gap-1.5 justify-end">
+                                    <button
+                                      onClick={() => handleDeleteOrder(order.id)}
+                                      className="px-2 py-1 bg-red-600 hover:bg-red-700 text-[10px] font-black uppercase tracking-widest text-white rounded-md transition-all inline-flex items-center gap-1 cursor-pointer"
+                                      title="Confirm Permanent Deletion"
+                                    >
+                                      <Trash2 size={10} />
+                                      <span>Sure?</span>
+                                    </button>
+                                    <button
+                                      onClick={() => setConfirmDeleteId(null)}
+                                      className="px-1.5 py-1 bg-white/5 hover:bg-white/15 text-[10px] font-black uppercase tracking-widest text-slate-300 rounded-md transition-all inline-flex items-center justify-center cursor-pointer"
+                                      title="Cancel"
+                                    >
+                                      Cancel
+                                    </button>
+                                  </div>
+                                ) : (
+                                  <button
+                                    onClick={() => setConfirmDeleteId(order.id)}
+                                    className="px-2 py-1 bg-red-500/10 hover:bg-red-500/25 text-[10px] font-black uppercase tracking-widest text-red-400 border border-red-500/20 rounded-md transition-all inline-flex items-center gap-1 cursor-pointer"
+                                    title="Delete Pending Transaction"
+                                  >
+                                    <Trash2 size={10} />
+                                    <span>Delete</span>
+                                  </button>
+                                )
+                              ) : (
+                                <span className="text-[10px] text-slate-600 uppercase font-bold tracking-wider">-</span>
+                              )}
+                            </td>
                           </tr>
                         ))
                       )}
@@ -807,7 +859,7 @@ export default function Admin() {
                     </h4>
                     
                     <div className="grid gap-3">
-                      {PRODUCTS.map(product => {
+                      {products.map(product => {
                         const hasAccess = foundUser.purchasedProductIds.includes(product.id);
                         return (
                           <div key={product.id} className="bg-white/5 border border-white/5 rounded-2xl p-4 flex items-center justify-between group hover:bg-white/[0.08] transition-all">
