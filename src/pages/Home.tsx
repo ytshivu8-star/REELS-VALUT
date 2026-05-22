@@ -1,11 +1,23 @@
+import { useState } from "react";
 import ProductCard from "../components/home/ProductCard";
 import Hero from "../components/home/Hero";
 import { useProducts } from "../hooks/useProducts";
 import { motion } from "motion/react";
-import { Shield, FastForward, Award, HeadphonesIcon, Instagram, Star } from "lucide-react";
+import { Shield, FastForward, Award, HeadphonesIcon, Instagram, Star, ArrowUpDown } from "lucide-react";
 
 export default function Home() {
   const { products, loading } = useProducts();
+  const [sortBy, setSortBy] = useState<"featured" | "price-low" | "price-high">("featured");
+
+  const sortedProducts = [...products].sort((a, b) => {
+    if (sortBy === "price-low") {
+      return a.price - b.price;
+    }
+    if (sortBy === "price-high") {
+      return b.price - a.price;
+    }
+    return 0; // featured remains default sequence
+  });
 
   return (
     <div className="bg-dark min-h-screen">
@@ -14,7 +26,7 @@ export default function Home() {
       {/* Featured Bundles */}
       <section id="bundles" className="py-16 md:py-32 px-4 md:px-6 relative">
         <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row items-end justify-between gap-6 mb-10 md:mb-16">
+          <div className="flex flex-col md:flex-row items-end justify-between gap-6 mb-10 md:mb-12">
             <div className="max-w-2xl">
               <h2 className="text-3xl md:text-6xl font-black uppercase leading-none tracking-tighter mb-4">
                 TRENDING <span className="text-primary italic">BUNDLES</span>
@@ -29,13 +41,60 @@ export default function Home() {
             </div>
           </div>
 
+          {/* Pricing Sort Options */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 mb-8 border-b border-white/5">
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="text-slate-500 text-[10px] sm:text-xs font-black uppercase tracking-widest flex items-center gap-1.5">
+                <ArrowUpDown size={12} className="text-primary" /> Sort by price:
+              </span>
+              <div className="flex items-center gap-1 bg-black/60 border border-white/5 p-1 rounded-xl">
+                <button
+                  id="sort-featured"
+                  onClick={() => setSortBy("featured")}
+                  className={`px-3 py-1.5 text-[10px] sm:text-xs font-black uppercase tracking-wider rounded-lg transition-all ${
+                    sortBy === "featured"
+                      ? "bg-primary text-black"
+                      : "text-slate-400 hover:text-white"
+                  }`}
+                >
+                  Featured
+                </button>
+                <button
+                  id="sort-price-low"
+                  onClick={() => setSortBy("price-low")}
+                  className={`px-3 py-1.5 text-[10px] sm:text-xs font-black uppercase tracking-wider rounded-lg transition-all ${
+                    sortBy === "price-low"
+                      ? "bg-primary text-black"
+                      : "text-slate-400 hover:text-white"
+                  }`}
+                >
+                  Low to High
+                </button>
+                <button
+                  id="sort-price-high"
+                  onClick={() => setSortBy("price-high")}
+                  className={`px-3 py-1.5 text-[10px] sm:text-xs font-black uppercase tracking-wider rounded-lg transition-all ${
+                    sortBy === "price-high"
+                      ? "bg-primary text-black"
+                      : "text-slate-400 hover:text-white"
+                  }`}
+                >
+                  High to Low
+                </button>
+              </div>
+            </div>
+            <div className="text-[10px] sm:text-xs text-slate-400 uppercase font-bold tracking-wider">
+              Showing <span className="text-primary font-black">{sortedProducts.length}</span> premium bundles
+            </div>
+          </div>
+
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4">
             {loading ? (
               [1, 2, 3, 4, 5].map(i => (
                 <div key={i} className="aspect-[9/16] bg-white/5 animate-pulse rounded-2xl" />
               ))
             ) : (
-              products.map(product => (
+              sortedProducts.map(product => (
                 <ProductCard key={product.id} product={product} />
               ))
             )}
