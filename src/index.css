@@ -48,3 +48,14 @@ html {
 .animate-float {
   animation: float 5s ease-in-out infinite;
 }
+
+/* Eliminate duplicate centered play/pause overlay states on mobile browsers/Safari */
+video::-webkit-media-controls-overlay-play-button {
+  display: none !important;
+  -webkit-appearance: none;
+}
+
+video::-webkit-media-controls-start-playback-button {
+  display: none !important;
+  -webkit-appearance: none;
+}
